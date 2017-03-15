@@ -1,0 +1,41 @@
+#!/bin/sh
+
+APP_DIR="/opt/app"
+
+APP_LOG_DIR="/ctdebuglog/${ARROWCLOUD_APP_LOG_DIR}"
+APP_DEBUG_LOG_DIR="${APP_LOG_DIR}/debug"
+APP_REQUESTS_LOG_DIR="${APP_LOG_DIR}/requests"
+
+mkdir -p "${APP_DEBUG_LOG_DIR}"
+if [ $? -ne 0 ]; then
+	echo "Failed to create ${APP_DEBUG_LOG_DIR}"
+	exit 1
+fi	
+
+mkdir -p "${APP_REQUESTS_LOG_DIR}"
+if [ $? -ne 0 ]; then
+	echo "Failed to create ${APP_REQUESTS_LOG_DIR}"
+	exit 1
+fi	
+
+# make a symbolic link from ${APP_REQUESTS_LOG_DIR} to /ctlog to satisfy appc-logger
+ln -s ${APP_REQUESTS_LOG_DIR} /ctlog
+if [ $? -ne 0 ]; then
+	echo "Failed to create link from ${APP_REQUESTS_LOG_DIR} to /ctlog"
+	exit 1
+fi	
+
+STDOUT_LOG_FILE="${APP_DEBUG_LOG_DIR}/stdout.log"
+STDERR_LOG_FILE="${APP_DEBUG_LOG_DIR}/stderr.log"
+
+cd $APP_DIR
+echo "[app_launcher] starting application via \"$DAEMON $DAEMON_ARGS\"" >> ${STDOUT_LOG_FILE} 2>>${STDERR_LOG_FILE}
+# start the app in the same process which is the main process(pid 1), so that the app can get signals
+exec node app.js >> ${STDOUT_LOG_FILE} 2>>${STDERR_LOG_FILE}
+RETVAL=$?
+if [ $RETVAL -ne 0 ]; then
+	echo "[app_launcher] application is over with status code $RETVAL." >> ${STDOUT_LOG_FILE} 2>>${STDERR_LOG_FILE}
+else
+	echo "[app_launcher] application is over." >> ${STDOUT_LOG_FILE} 2>>${STDERR_LOG_FILE}
+fi
+exit $RETVAL

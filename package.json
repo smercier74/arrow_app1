@@ -1,0 +1,25 @@
+{
+  "name": "app1",
+  "description": "",
+  "type": "image",
+  "main": "app.js",
+  "service": {"env_id":"","org_id":""},
+  "keywords": [
+  ],
+  "author": "smercier74",
+  "maintainers": [
+  ],
+  "contributors": [
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:smercier74/arrow_app1.git"
+  },
+  "preferGlobal": false,
+  "dependencies": {
+    "appc-logger": "^1.1.16",
+    "express": "^4.12.4"
+  },
+  "license":"",
+  "private": true
+}
